@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>D3 and Scalable Vector Graphics</title>
+    
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.min.css"/>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+    
+</head>
+<body>
+    <h1>Data Vizualization</h1>
+    
+    <h2>DC PieChart</h2>
+
+    <div style="clear: left">
+    <h3>Total Spend Per Sperson</h3>
+    <div id="total_spend_per_person"></div>
+    </div>
+    
+    <div style="clear: left">
+    <h3>Total Spend Per Store</h3>
+    <div id="total_spend_per_store"></div>
+    </div>
+
+    <div style="clear: left">
+    <h3>Total Spend Per State</h3>
+    <div id="total_spend_per_state"></div>
+    </div>
+    
+    <script>
+    queue()
+        .defer(d3.json, "data/transactions.json")
+        .await(makeGraphs);
+        
+        
+    function makeGraphs(error, transactionsJson) {
+    var ndx = crossfilter(transactionsJson);
+
+    var name_dim = ndx.dimension(dc.pluck('name'))
+    var total_spend_per_person = name_dim.group().reduceSum(dc.pluck('spend'))
+    dc.pieChart('#total_spend_per_person')
+        .height(330)
+        .radius(90)
+        .transitionDuration(1500)
+        .dimension(name_dim)
+        .group(total_spend_per_person);    
+
+    var store_dim = ndx.dimension(dc.pluck('store'));
+    var total_spend_per_store = store_dim.group().reduceSum(dc.pluck('spend'));
+    dc.pieChart('#total_spend_per_store')
+        .height(330)
+        .radius(90)
+        .transitionDuration(1500)
+        .dimension(store_dim)
+        .group(total_spend_per_store);    
+
+
+    var state_dim = ndx.dimension(dc.pluck('state'))
+    var total_spend_per_state = state_dim.group().reduceSum(dc.pluck('spend'))
+    dc.pieChart('#total_spend_per_state')
+        .height(330)
+        .radius(90)
+        .transitionDuration(1500)
+        .dimension(state_dim)
+        .group(total_spend_per_state);    
+    
+    dc.renderAll()
+    };    
+
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
