@@ -20,23 +20,52 @@
     <h2>DC Average</h2>
 
     <div style="clear: left">
-    <h3>Average Transaction Size By Person</h3>
-    <div id="chart-here"></div>
+    <h3>Number Of Transactions</h3>
+    <div id="number_of_transactions"></div>
+    </div>
+    
+    <br>
+
+    <div style="clear: left">
+    <h3>Total Of Transactions</h3>
+    <div id="total_of_transactions"></div>
+    </div>
+
+    <br>
+
+    <div style="clear: left">
+    <h3>Average Transaction</h3>
+    <div id="average_transaction"></div>
     </div>
 
     <script>
     queue()
         .defer(d3.json, "data/transactions.json")
         .await(makeGraphs);
-        
+    
     function makeGraphs(error, transactionsJson) {
+        
         var ndx = crossfilter(transactionsJson);
-        var parseDate = d3.time.format("%d/%m/%Y").parse;
-        transactionsJson.forEach(function(d){
-            d.date = parseDate(d.date);
-        });
-        var dim = ndx.dimension(dc.pluck('name'));
-        var group = dim.group().reduce(
+
+        var number_of_transactions = ndx.groupAll();
+        dc.numberDisplay("#number_of_transactions")
+            .formatNumber(d3.format("d"))
+            .valueAccessor(function (d) {
+                return (d);
+            })
+            .group(number_of_transactions);
+
+
+        var total_of_transactions = ndx.groupAll().reduceSum(dc.pluck('spend'));
+        dc.numberDisplay("#total_of_transactions")
+            .formatNumber(d3.format("d"))
+            .valueAccessor(function (d) {
+                return (d);
+            })
+            .group(total_of_transactions);
+
+
+        var average_transaction = ndx.groupAll().reduce(
             function (p, v) {
                 ++p.count;
                 p.total += v.spend;
@@ -58,25 +87,17 @@
                 return {count: 0, total: 0, average: 0};
             }
         );
-        var chart = dc.barChart("#chart-here");
-        chart
-            .width(500)
-            .height(300)
-            .margins({top: 10, right: 50, bottom: 30, left: 50})
-            .dimension(dim)
-            .group(group)
-            .valueAccessor(function (p) {
-                return p.value.average;
+
+        dc.numberDisplay("#average_transaction")
+            .formatNumber(d3.format(".2f"))
+            .valueAccessor(function (d) {
+                return (d.average);
             })
-            .transitionDuration(500)
-            .x(d3.scale.ordinal())
-            .xUnits(dc.units.ordinal)
-            .elasticY(true)
-            .xAxisLabel("Person")
-            .yAxis().ticks(4);
-            
-        dc.renderAll();    
-    }
+            .group(average_transaction);
+
+
+        dc.renderAll();
+    };
     </script>
 </body>
 </html>

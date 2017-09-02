@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>D3 and Scalable Vector Graphics</title>
+    
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.min.css"/>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+    
+</head>
+<body>
+    <h1>Data Vizualization</h1>
+    
+    <h2>Dashboard Walkthrough</h2>
+    
+    <div style="clear: left">
+    <h3>Select Discipline</h3>
+    <div id="discipline-selector"></div>
+    </div>
+
+    <div style="clear: left">
+    <h3>Percent Of Women Who Are Professors</h3>
+    <div id="number-display"></div>
+    </div>
+
+    <div style="clear: left">
+    <h3>Percent Of Men Who Are Professors</h3>
+    <div id="percent-men-are-prof"></div>
+    </div>
+
+
+    <div style="clear: left">
+    <h3>Gender Balance</h3>
+    <div id="gender_balance"></div>
+    </div>
+
+    <div style="clear: left">
+    <h3>Average Salary By Gender</h3>
+    <div id="average_salary_by_gender"></div>
+    </div>
+
+    <div style="clear: left">
+    <h3>Experience/Salary Correlation</h3>
+    <div id="experience_salary_correlation"></div>
+    </div>
+
+    <div style="clear: left">
+    <h3>Years Since PHD/Salary Correlation</h3>
+    <div id="phd_salary_correlation"></div>
+    </div>
+
+    <div style="clear: left">
+    <h3>Rank Distribution By Gender</h3>
+    <div id="rank_gender_distribution"></div>
+    </div>
+
+    <script>
+    queue()
+        .defer(d3.csv, "data/Salaries.csv")
+        .await(makeGraphs);
+        
+    function makeGraphs(error, salaries) {
+        var ndx = crossfilter(salaries);
+        
+        salaries.forEach(function(d){
+            d.salary = parseInt(d.salary);
+            d.yrs_since_phd = parseInt(d['yrs.since.phd']);
+            d.yrs_service = parseInt(d['yrs.service']);
+        });
+        
+
+        /* SELECT DISCIPLINE */
+        var disciplineDim = ndx.dimension(dc.pluck('discipline'));
+        var disciplineSelect = disciplineDim.group();
+        
+        dc.selectMenu('#discipline-selector')
+            .dimension(disciplineDim)
+            .group(disciplineSelect);      
+        
+        
+        /* Number Display */
+        var num_women = ndx.groupAll().reduceSum(function (d) { 
+            if (d.sex === 'Female')
+                return 1;
+            else
+                return 0;
+        });
+        
+        var percentageWomenAreProf = ndx.groupAll().reduce(
+            function (p, v) {
+                if (v.sex === 'Female') {
+                    ++p.count;
+                    if (v.rank === 'Prof')
+                       ++p.are_prof;
+
+                p.pcnt_are_prof = p.are_prof / p.count;
+                }
+                return p;
+            },
+            function (p, v) {
+                if (v.sex === 'Female') {
+                    --p.count;
+                    if (v.rank === 'Prof')
+                       --p.are_prof;
+                       
+                    if(p.count == 0) {
+                        p.pcnt_are_prof = 0;
+                    } else {
+                    p.pcnt_are_prof = p.are_prof / p.count;
+                    };
+                }
+                return p;
+            },
+            function () {
+                return {count: 0, are_prof: 0, pcnt_are_prof: 0};
+            }
+        );
+
+        
+        
+        
+        dc.numberDisplay("#number-display")
+            .formatNumber(d3.format(".2%"))
+            .valueAccessor(function (d) {
+                return (d.pcnt_are_prof);
+            })
+            .group(percentageWomenAreProf);
+        
+        /* PERCENT MEN ARE PROF */
+            var percentageMenAreProf = ndx.groupAll().reduce(
+            function (p, v) {
+                if (v.sex === 'Male') {
+                    ++p.count;
+                    if (v.rank === 'Prof')
+                       ++p.are_prof;
+
+                p.pcnt_are_prof = p.are_prof / p.count;
+                }
+                return p;
+            },
+            function (p, v) {
+                if (v.sex === 'Male') {
+                    --p.count;
+                    if (v.rank === 'Prof')
+                       --p.are_prof;
+                       
+                    if(p.count == 0) {
+                        p.pcnt_are_prof = 0;
+                    } else {
+                    p.pcnt_are_prof = p.are_prof / p.count;
+                    };
+                }
+                return p;
+            },
+            function () {
+                return {count: 0, are_prof: 0, pcnt_are_prof: 0};
+            }
+        );
+
+        
+        dc.numberDisplay("#percent-men-are-prof")
+            .formatNumber(d3.format(".2%"))
+            .valueAccessor(function (d) {
+                return (d.pcnt_are_prof);
+            })
+            .group(percentageMenAreProf);
+        
+        
+        
+        /* GENDER BALANCE */
+        var genderDim = ndx.dimension(dc.pluck('sex'));
+        var genderMix = genderDim.group();
+        
+        dc.barChart("#gender_balance")
+            .width(500)
+            .height(300)
+            .margins({top: 10, right: 50, bottom: 30, left: 50})
+            .dimension(genderDim)
+            .group(genderMix)
+            .transitionDuration(500)
+            .x(d3.scale.ordinal())
+            .xUnits(dc.units.ordinal)
+            .elasticY(true)
+            .xAxisLabel("Gender")
+            .yAxis().ticks(20);
+
+        /* AVERAGE SALARY BY GENDER */
+        var averageSalaryByGender = genderDim.group().reduce(
+            function (p, v) {
+                ++p.count;
+                p.total += v.salary;
+                p.average = p.total / p.count;
+                return p;
+            },
+            function (p, v) {
+                --p.count;
+                if(p.count == 0) {
+                    p.total = 0;
+                    p.average = 0;
+                } else {
+                    p.total -= v.salary;
+                    p.average = p.total / p.count;
+                };
+                return p;
+            },
+            function () {
+                return {count: 0, total: 0, average: 0};
+            }
+        );
+        
+        dc.barChart("#average_salary_by_gender")
+            .width(500)
+            .height(300)
+            .margins({top: 10, right: 50, bottom: 30, left: 50})
+            .dimension(genderDim)
+            .group(averageSalaryByGender)
+            .valueAccessor(function (p) {
+                return p.value.average;
+            })
+            .transitionDuration(500)
+            .x(d3.scale.ordinal())
+            .xUnits(dc.units.ordinal)
+            .elasticY(true)
+            .xAxisLabel("Gender")
+            .yAxis().ticks(4);
+            
+            
+        /* EXPERIENCE SALARY CORRELATION */
+        var genderColors = d3.scale.ordinal()
+            .domain(["Female", "Male"])
+            .range(["pink", "blue"]);
+            
+            
+        
+        var eDim = ndx.dimension(dc.pluck('yrs_service'));
+        var experienceDim = ndx.dimension(function(d){
+            return [d.yrs_service, d.salary, d];
+        });
+        var experienceSalaryGroup = experienceDim.group();
+
+        var minExperience = eDim.bottom(1)[0].yrs_service;
+        var maxExperience = eDim.top(1)[0].yrs_service;
+
+        experiece_salary_chart = dc.scatterPlot("#experience_salary_correlation");
+        experiece_salary_chart
+            .width(800)
+            .height(400)
+            .x(d3.scale.linear().domain([minExperience,maxExperience]))
+            .brushOn(false)
+            .symbolSize(8)
+            .clipPadding(10)
+            .yAxisLabel("Salary")
+            .xAxisLabel("Years Of Service")
+            .title(function (d) {
+                return d.key[2].rank + " earned " + d.key[2].salary;
+            })
+            .colorAccessor(function (d) {
+                return d.key[2].sex;
+            })
+            .colors(genderColors)
+            .dimension(experienceDim)
+            .group(experienceSalaryGroup);
+        
+        experiece_salary_chart.margins().left = 75
+        experiece_salary_chart.margins().bottom = 75
+
+
+        /* PHD SALARY CORRELATION */
+        var pDim = ndx.dimension(dc.pluck('yrs_since_phd'));
+        var phdDim = ndx.dimension(function(d){
+            return [d.yrs_since_phd, d.salary, d];
+        });
+        var phdSalaryGroup = phdDim.group();
+
+        var minPhd = eDim.bottom(1)[0].yrs_since_phd;
+        var maxPhd = eDim.top(1)[0].yrs_since_phd;
+
+        phd_salary_chart = dc.scatterPlot("#phd_salary_correlation");
+        phd_salary_chart
+            .width(800)
+            .height(400)
+            .x(d3.scale.linear().domain([minPhd,maxPhd]))
+            .brushOn(false)
+            .symbolSize(8)
+            .clipPadding(10)
+            .yAxisLabel("Salary")
+            .xAxisLabel("Years Since PhD")
+            .title(function (d) {
+                return d.key[2].rank + " earned " + d.key[2].salary;
+            })
+            .colorAccessor(function (d) {
+                return d.key[2].sex;
+            })
+            .colors(genderColors)
+            .dimension(phdDim)
+            .group(phdSalaryGroup);
+
+        phd_salary_chart.margins().left = 75
+        phd_salary_chart.margins().bottom = 75
+
+
+
+        /* GENDER/RANK DISTRIBUTION */
+        var rankByGenderAssocProf = genderDim.group().reduceSum(function (d) {
+                if (d.rank === 'AssocProf') {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        var rankByGenderAsstProf = genderDim.group().reduceSum(function (d) {
+                if (d.rank === 'AsstProf') {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        var rankByGenderProf = genderDim.group().reduceSum(function (d) {
+                if (d.rank === 'Prof') {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            });
+        
+        stackedChart = dc.barChart("#rank_gender_distribution");
+        stackedChart
+            .width(500)
+            .height(500)
+            .dimension(genderDim)
+            .group(rankByGenderAssocProf, "Assoc Prof")
+            .stack(rankByGenderAsstProf, "Asst")
+            .stack(rankByGenderProf, "Prof")
+            .x(d3.scale.ordinal())
+            .xUnits(dc.units.ordinal)
+            .legend(dc.legend().x(420).y(0).itemHeight(15).gap(5));
+            
+        stackedChart.margins().right = 100;
+
+        dc.renderAll();
+}
+    </script>
+</body>
+</html>

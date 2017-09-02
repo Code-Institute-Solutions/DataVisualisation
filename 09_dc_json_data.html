@@ -33,8 +33,8 @@
     function makeGraphs(error, transactionsJson) {
         var ndx = crossfilter(transactionsJson);
 
-        var name_dim = ndx.dimension(dc.pluck('name'))
-        var total_spend_per_person = name_dim.group().reduceSum(dc.pluck('spend'))
+        var name_dim = ndx.dimension(dc.pluck('name'));
+        var total_spend_per_person = name_dim.group().reduceSum(dc.pluck('spend'));
         dc.barChart("#total_spend_per_person")
             .width(300)
             .height(150)
@@ -46,7 +46,7 @@
             .xUnits(dc.units.ordinal)
             .xAxisLabel("Person")
             .yAxis().ticks(4);
-        
+
         dc.renderAll()
     };    
 

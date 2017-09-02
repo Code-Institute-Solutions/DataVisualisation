@@ -17,38 +17,46 @@
 <body>
     <h1>Data Vizualization</h1>
     
-    <h2>DC Dynamic Dimension</h2>
+    <h2>DC Average</h2>
 
     <div style="clear: left">
-    <h3>Big (greater than 200) vs Small Transactions</h3>
-    <div id="pie-chart"></div>
+    <h3>Select Store</h3>
+    <div id="store-selector"></div>
+    </div>
+
+    <div style="clear: left">
+    <h3>Person Spend</h3>
+    <div id="person-spend-chart"></div>
     </div>
 
     <script>
     queue()
         .defer(d3.json, "data/transactions.json")
         .await(makeGraphs);
-        
+    
     function makeGraphs(error, transactionsJson) {
         var ndx = crossfilter(transactionsJson);
-        var parseDate = d3.time.format("%d/%m/%Y").parse;
-        transactionsJson.forEach(function(d){
-            d.date = parseDate(d.date);
-        });
-        var dim = ndx.dimension(function(d) {
-            if(d['spend'] > 200)
-                return 'Big';
-            else
-                return 'Small';
-        });
-        var group = dim.group();
-        dc.pieChart('#pie-chart')
-            .height(330)
-            .radius(90)
-            .transitionDuration(1500)
-            .dimension(dim)
-            .group(group);
+
+        var storeDim = ndx.dimension(dc.pluck('store'));
+
+        var selectStore = dc.selectMenu('#store-selector');
+        storeDim = ndx.dimension(dc.pluck('store'));
+        selectStoreGroup = storeDim.group();
+
+        selectStore
+            .dimension(storeDim)
+            .group(selectStoreGroup);      
             
+            
+        var personDim = ndx.dimension(dc.pluck('name'));
+        var spendByPerson = personDim.group().reduceSum(dc.pluck('spend'));
+        dc.rowChart("#person-spend-chart")
+            .width(600)
+            .height(330)
+            .dimension(personDim)
+            .group(spendByPerson)
+            .xAxis().ticks(4);    
+
         dc.renderAll();
     };
     </script>

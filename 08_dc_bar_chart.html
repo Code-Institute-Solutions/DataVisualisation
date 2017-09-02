@@ -44,7 +44,7 @@
         {"name": "Bob", "store": "Big Co.", "state": "NY", "spend": 75},
         {"name": "Alice", "store": "Acme", "state": "FL", "spend": 200},
         {"name": "Alice", "store": "Big Co.", "state": "NY", "spend": 350}
-        ]
+        ];
     
     var ndx = crossfilter(transactionsJson);
 
@@ -63,8 +63,8 @@
         .yAxis().ticks(4);
     
 
-    var store_dim = ndx.dimension(dc.pluck('store'))
-    var total_spend_per_store = store_dim.group().reduceSum(dc.pluck('spend'))
+    var store_dim = ndx.dimension(dc.pluck('store'));
+    var total_spend_per_store = store_dim.group().reduceSum(dc.pluck('spend'));
     dc.barChart("#total_spend_per_store")
         .width(300)
         .height(150)
@@ -78,8 +78,8 @@
         .yAxis().ticks(4);
 
 
-    var state_dim = ndx.dimension(dc.pluck('state'))
-    var total_spend_per_state = state_dim.group().reduceSum(dc.pluck('spend'))
+    var state_dim = ndx.dimension(dc.pluck('state'));
+    var total_spend_per_state = state_dim.group().reduceSum(dc.pluck('spend'));
     dc.barChart("#total_spend_per_state")
         .width(300)
         .height(150)
@@ -93,7 +93,7 @@
         .yAxis().ticks(4);
     
 
-    dc.renderAll()
+    dc.renderAll();
     </script>
 </body>
 </html>
