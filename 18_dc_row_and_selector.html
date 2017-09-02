@@ -21,7 +21,7 @@
     
 </head>
 <body>
-    <h1>Data Vizualization</h1>
+    <h1>Data Vizualisation</h1>
     
     <h2>DC Average</h2>
 
@@ -40,8 +40,8 @@
         .defer(d3.json, "data/transactions.json")
         .await(makeGraphs);
     
-    function makeGraphs(error, transactionsJson) {
-        var ndx = crossfilter(transactionsJson);
+    function makeGraphs(error, transactionsData) {
+        var ndx = crossfilter(transactionsData);
 
         var storeDim = ndx.dimension(dc.pluck('store'));
 

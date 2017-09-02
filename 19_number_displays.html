@@ -21,27 +21,27 @@
     
 </head>
 <body>
-    <h1>Data Vizualization</h1>
+    <h1>Data Vizualisation</h1>
     
     <h2>DC Average</h2>
 
     <div>
     <h3>Number Of Transactions</h3>
-    <div id="number_of_transactions"></div>
+    <div id="number-of-transactions"></div>
     </div>
     
     <br>
 
     <div>
     <h3>Total Of Transactions</h3>
-    <div id="total_of_transactions"></div>
+    <div id="total-of-transactions"></div>
     </div>
 
     <br>
 
     <div>
     <h3>Average Transaction</h3>
-    <div id="average_transaction"></div>
+    <div id="average-transaction"></div>
     </div>
 
     <script>
@@ -49,12 +49,12 @@
         .defer(d3.json, "data/transactions.json")
         .await(makeGraphs);
     
-    function makeGraphs(error, transactionsJson) {
+    function makeGraphs(error, transactionsData) {
         
-        var ndx = crossfilter(transactionsJson);
+        var ndx = crossfilter(transactionsData);
 
         var number_of_transactions = ndx.groupAll();
-        dc.numberDisplay("#number_of_transactions")
+        dc.numberDisplay("#number-of-transactions")
             .formatNumber(d3.format("d"))
             .valueAccessor(function (d) {
                 return (d);
@@ -63,7 +63,7 @@
 
 
         var total_of_transactions = ndx.groupAll().reduceSum(dc.pluck('spend'));
-        dc.numberDisplay("#total_of_transactions")
+        dc.numberDisplay("#total-of-transactions")
             .formatNumber(d3.format("d"))
             .valueAccessor(function (d) {
                 return (d);
@@ -94,7 +94,7 @@
             }
         );
 
-        dc.numberDisplay("#average_transaction")
+        dc.numberDisplay("#average-transaction")
             .formatNumber(d3.format(".2f"))
             .valueAccessor(function (d) {
                 return (d.average);

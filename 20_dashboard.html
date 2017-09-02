@@ -21,7 +21,7 @@
     
 </head>
 <body>
-    <h1>Data Vizualization</h1>
+    <h1>Data Vizualisation</h1>
     
     <h2>Dashboard Walkthrough</h2>
     
@@ -43,27 +43,27 @@
 
     <div>
     <h3>Gender Balance</h3>
-    <div id="gender_balance"></div>
+    <div id="gender-balance"></div>
     </div>
 
     <div>
     <h3>Average Salary By Gender</h3>
-    <div id="average_salary_by_gender"></div>
+    <div id="average-salary-by-gender"></div>
     </div>
 
     <div>
     <h3>Experience/Salary Correlation</h3>
-    <div id="experience_salary_correlation"></div>
+    <div id="experience-salary-correlation"></div>
     </div>
 
     <div>
     <h3>Years Since PHD/Salary Correlation</h3>
-    <div id="phd_salary_correlation"></div>
+    <div id="phd-salary-correlation"></div>
     </div>
 
     <div>
     <h3>Rank Distribution By Gender</h3>
-    <div id="rank_gender_distribution"></div>
+    <div id="rank-gender-distribution"></div>
     </div>
 
     <script>
@@ -71,10 +71,10 @@
         .defer(d3.csv, "data/Salaries.csv")
         .await(makeGraphs);
         
-    function makeGraphs(error, salaries) {
-        var ndx = crossfilter(salaries);
+    function makeGraphs(error, salariesData) {
+        var ndx = crossfilter(salariesData);
         
-        salaries.forEach(function(d){
+        salariesData.forEach(function(d){
             d.salary = parseInt(d.salary);
             d.yrs_since_phd = parseInt(d['yrs.since.phd']);
             d.yrs_service = parseInt(d['yrs.service']);
@@ -129,14 +129,13 @@
         );
 
         
-        
-        
         dc.numberDisplay("#number-display")
             .formatNumber(d3.format(".2%"))
             .valueAccessor(function (d) {
                 return (d.pcnt_are_prof);
             })
             .group(percentageWomenAreProf);
+        
         
         /* PERCENT MEN ARE PROF */
             var percentageMenAreProf = ndx.groupAll().reduce(
@@ -183,7 +182,7 @@
         var genderDim = ndx.dimension(dc.pluck('sex'));
         var genderMix = genderDim.group();
         
-        dc.barChart("#gender_balance")
+        dc.barChart("#gender-balance")
             .width(500)
             .height(300)
             .margins({top: 10, right: 50, bottom: 30, left: 50})
@@ -220,7 +219,7 @@
             }
         );
         
-        dc.barChart("#average_salary_by_gender")
+        dc.barChart("#average-salary-by-gender")
             .width(500)
             .height(300)
             .margins({top: 10, right: 50, bottom: 30, left: 50})
@@ -253,7 +252,7 @@
         var minExperience = eDim.bottom(1)[0].yrs_service;
         var maxExperience = eDim.top(1)[0].yrs_service;
 
-        experiece_salary_chart = dc.scatterPlot("#experience_salary_correlation");
+        experiece_salary_chart = dc.scatterPlot("#experience-salary-correlation");
         experiece_salary_chart
             .width(800)
             .height(400)
@@ -287,7 +286,7 @@
         var minPhd = eDim.bottom(1)[0].yrs_since_phd;
         var maxPhd = eDim.top(1)[0].yrs_since_phd;
 
-        phd_salary_chart = dc.scatterPlot("#phd_salary_correlation");
+        phd_salary_chart = dc.scatterPlot("#phd-salary-correlation");
         phd_salary_chart
             .width(800)
             .height(400)
@@ -335,7 +334,7 @@
                 }
             });
         
-        stackedChart = dc.barChart("#rank_gender_distribution");
+        stackedChart = dc.barChart("#rank-gender-distribution");
         stackedChart
             .width(500)
             .height(500)
