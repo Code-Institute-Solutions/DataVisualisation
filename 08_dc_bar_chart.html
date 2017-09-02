@@ -7,7 +7,7 @@
     <title>D3 and Scalable Vector Graphics</title>
 
     <style>
-        body>div {
+        div {
             clear: left;
         }
     </style>
@@ -48,16 +48,6 @@
         {"name": "Bob", "store": "Big Co.", "state": "FL", "spend": 50},
         {"name": "Bob", "store": "Big Co.", "state": "NY", "spend": 75},
         {"name": "Alice", "store": "Acme", "state": "FL", "spend": 200},
-<<<<<<< HEAD
-        {"name": "Alice", "store": "Big Co.", "state": "NY", "spend": 350}
-        ];
-    
-    var ndx = crossfilter(transactionsJson);
-
-    var name_dim = ndx.dimension(dc.pluck('name'))
-    var total_spend_per_person = name_dim.group().reduceSum(dc.pluck('spend'))
-    dc.barChart("#total_spend_per_person")
-=======
         {"name": "Alice", "store": "Big Co.", "state": "NY", "spend": 350},
     ];
 
@@ -67,7 +57,6 @@
     var total_spend_per_person = name_dim.group().reduceSum(dc.pluck('spend'));
 
     dc.barChart("#per-person-chart")
->>>>>>> 6c767dea6939d6b53c2dd7a3a39869a45c8f1be6
         .width(300)
         .height(150)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
@@ -81,12 +70,8 @@
 
     var store_dim = ndx.dimension(dc.pluck('store'));
     var total_spend_per_store = store_dim.group().reduceSum(dc.pluck('spend'));
-<<<<<<< HEAD
-    dc.barChart("#total_spend_per_store")
-=======
 
     dc.barChart("#per-store-chart")
->>>>>>> 6c767dea6939d6b53c2dd7a3a39869a45c8f1be6
         .width(300)
         .height(150)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
@@ -101,12 +86,8 @@
 
     var state_dim = ndx.dimension(dc.pluck('state'));
     var total_spend_per_state = state_dim.group().reduceSum(dc.pluck('spend'));
-<<<<<<< HEAD
-    dc.barChart("#total_spend_per_state")
-=======
 
     dc.barChart("#per-state-chart")
->>>>>>> 6c767dea6939d6b53c2dd7a3a39869a45c8f1be6
         .width(300)
         .height(150)
         .margins({top: 10, right: 50, bottom: 30, left: 50})
