@@ -5,51 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>D3 and Scalable Vector Graphics</title>
-    
+
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
 
 </head>
 <body>
-    <h1>Data Vizualization</h1>
-    
+    <h1>Data Visualisation</h1>
+
     <h2>D3 Pie Chart</h2>
 
-    <div id="draw_here"></div>
+    <div id="draw-here"></div>
 
     <script>
-    var dataset = [ 5, 10, 20, 20, 6, 25 ];
+    var dataset = [5, 10, 20, 20, 6, 25];
     var w = 250;
     var h = 250;
-    var svg = d3.select("#draw_here")
-            .append("svg")
-            .attr("width", w)
-            .attr("height", h);
+
+    var svg = d3.select("#draw-here")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
     var outerRadius = w / 2;
     var innerRadius = 0;
     var arc = d3.svg.arc()
-            .innerRadius(innerRadius)
-            .outerRadius(outerRadius);
+        .innerRadius(innerRadius)
+        .outerRadius(outerRadius);
     var pie = d3.layout.pie();
     var color = d3.scale.category10();
+
     var arcs = svg.selectAll("g.arc")
-            .data(pie(dataset))
-            .enter()
-            .append("g")
-            .attr("class", "arc")
-            .attr("transform", "translate("+ outerRadius + ", " + outerRadius +")");
+        .data(pie(dataset))
+        .enter()
+        .append("g")
+        .attr("class", "arc")
+        .attr("transform", "translate("+ outerRadius + ", " + outerRadius +")");
+
     arcs.append("path")
-            .attr("fill", function(d, i) {
-                return color(i)
-            })
-            .attr("d", arc);
+        .attr("fill", function(d, i) {
+            return color(i);
+        })
+        .attr("d", arc);
+
     arcs.append("text")
-            .attr("transform", function(d) {
-                return "translate(" + arc.centroid(d) + ")";
-            })
-            .attr("text-anchor", "middle")
-            .text(function(d) {
-                return d.value;
-            });
+        .attr("transform", function(d) {
+            return "translate(" + arc.centroid(d) + ")";
+        })
+        .attr("text-anchor", "middle")
+        .text(function(d) {
+            return d.value;
+        });
     </script>
 </body>
 </html>
