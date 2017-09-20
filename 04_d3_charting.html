@@ -25,8 +25,6 @@
         110, 102, 375, 200, 175, 168, 180, 230, 205,
     ];
 
-    var scale = d3.scale.linear();
-
     var svg = d3.select("#draw-here")
         .append("svg")
         .attr("width", w)
@@ -40,11 +38,11 @@
             return i * (w / dataset.length);
         })
         .attr("y", function(d) {
-            return h - scale(d);
+            return h - d;
         })
         .attr("width", w / dataset.length - barPadding)
         .attr("height", function(d) {
-            return scale(d);
+            return d;
         });
 
     svg.selectAll("text")
@@ -59,7 +57,7 @@
             return i * (w / dataset.length) + (w / dataset.length - barPadding) / 2;
         })
         .attr("y", function(d) {
-            return h - scale(d) + 14;
+            return h - d + 14;
         })
         .attr("font-family", "sans-serif")
         .attr("font-size", "11px")

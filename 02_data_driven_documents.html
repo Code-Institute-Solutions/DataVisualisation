@@ -17,11 +17,10 @@
 
     <script>
     var data = [
-        {"key": "First Heading", "value":"First Paragraph"},
-        {"key": "Second Heading", "value":"Second Paragraph"},
-        {"key": "Third Heading", "value":"Third Paragraph"},
-        {"key": "Fourth Heading", "value":"Fourth Paragraph"},
-        {"key": "Fifth Heading", "value":"Fifth Paragraph"},
+        {"name": "Donald Duck", "bio":"First appeared in the 1934 cartoon The Wise Little Heon."},
+        {"name": "Mickey Mouse", "bio":"The first Mickey Mouse cartoon actually completed was Plane Crazy"},
+        {"name": "Minnie Mouse", "bio":"First appeared in Steamboad Willie, in 1928."},
+        {"name": "Goofy", "bio":"First appearance in 1932's Mickey's Revue."},
     ];
 
     //Create SVG element
@@ -33,11 +32,11 @@
         .append("div");
 
     doc_item.append("h4").text(function (d) {
-        return d.key;
+        return d.name;
     });
 
     doc_item.append("p").text(function (d) {
-        return d.value;
+        return d.bio;
     });
     </script>
 </body>
