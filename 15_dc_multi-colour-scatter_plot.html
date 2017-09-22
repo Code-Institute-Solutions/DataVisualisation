@@ -37,10 +37,6 @@
     function makeGraphs(error, transactionsData) {
         var ndx = crossfilter(transactionsData);
 
-        var tradeColors = d3.scale.ordinal()
-            .domain(["Alice", "Tom", "Bob"])
-            .range(["red", "green", "blue"]);
-
         var parseDate = d3.time.format("%d/%m/%Y").parse;
         transactionsData.forEach(function(d){
             d.date = parseDate(d.date);
@@ -49,6 +45,11 @@
         var dateDim = ndx.dimension(function(d){
             return d.date;
         });
+
+        var tradeColors = d3.scale.ordinal()
+            .domain(["Alice", "Tom", "Bob"])
+            .range(["red", "green", "blue"]);
+
 
         var minDate = dateDim.bottom(1)[0].date;
         var maxDate = dateDim.top(1)[0].date;

@@ -26,7 +26,7 @@
 
     <div>
         <h3>Transactions per date</h3>
-        <div id="date-spend-chart"></div>
+        <div id="scatter-plot"></div>
     </div>
 
     <script>
@@ -42,28 +42,29 @@
             d.date = parseDate(d.date);
         });
 
-        var dateDim = ndx.dimension(function(d){
+        var date_dim = ndx.dimension(function(d){
             return d.date;
         });
 
-        var minDate = dateDim.bottom(1)[0].date;
-        var maxDate = dateDim.top(1)[0].date;
-        var spendDim = ndx.dimension(function(d){
+        var min_date = date_dim.bottom(1)[0].date;
+        var max_date = date_dim.top(1)[0].date;
+        
+        var spend_dim = ndx.dimension(function(d){
             return [d.date, d.spend];
         });
-        var spendGroup = spendDim.group();
+        var spend_group = spend_dim.group();
 
-        var spend_chart = dc.scatterPlot("#date-spend-chart");
+        var spend_chart = dc.scatterPlot("#scatter-plot");
         spend_chart
             .width(768)
             .height(480)
-            .x(d3.time.scale().domain([minDate, maxDate]))
+            .x(d3.time.scale().domain([min_date, max_date]))
             .brushOn(false)
             .symbolSize(8)
             .clipPadding(10)
-            .yAxisLabel("This is the Y Axis!")
-            .dimension(spendDim)
-            .group(spendGroup);
+            .yAxisLabel("Amount Spent")
+            .dimension(spend_dim)
+            .group(spend_group);
 
         dc.renderAll();
     }

@@ -43,7 +43,6 @@
         });
 
         var date_dim = ndx.dimension(dc.pluck('date'));
-        var total_spend_per_date = date_dim.group().reduceSum(dc.pluck('spend'));
 
         var minDate = date_dim.bottom(1)[0].date;
         var maxDate = date_dim.top(1)[0].date;

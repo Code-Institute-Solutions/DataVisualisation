@@ -5,73 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>D3 and Scalable Vector Graphics</title>
-    
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.min.css"/>
     <style>
         div {
             clear: left;
         }
     </style>
 
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.min.css"/>
-
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
-    
+
 </head>
 <body>
-    <h1>Data Vizualisation</h1>
-    
-    <h2>DC Average</h2>
-
     <div>
-    <h3>Number Of Transactions</h3>
-    <div id="number-of-transactions"></div>
-    </div>
-    
-    <br>
-
-    <div>
-    <h3>Total Of Transactions</h3>
-    <div id="total-of-transactions"></div>
+        <h3>Number Of Transactions</h3>
+        <div id="number-of-transactions"></div>
     </div>
 
-    <br>
+    <div>
+        <h3>Total Spend</h3>
+        <div id="total-spend"></div>
+    </div>
+
 
     <div>
-    <h3>Average Transaction</h3>
-    <div id="average-transaction"></div>
+        <h3>Average Spend</h3>
+        <div id="average-spend"></div>
     </div>
+
+
 
     <script>
     queue()
         .defer(d3.json, "data/transactions.json")
         .await(makeGraphs);
-    
+
     function makeGraphs(error, transactionsData) {
-        
         var ndx = crossfilter(transactionsData);
 
         var number_of_transactions = ndx.groupAll();
+        
         dc.numberDisplay("#number-of-transactions")
             .formatNumber(d3.format("d"))
             .valueAccessor(function (d) {
-                return (d);
+                return (+d);
             })
             .group(number_of_transactions);
-
-
+            
+        
         var total_of_transactions = ndx.groupAll().reduceSum(dc.pluck('spend'));
-        dc.numberDisplay("#total-of-transactions")
+        dc.numberDisplay("#total-spend")
             .formatNumber(d3.format("d"))
             .valueAccessor(function (d) {
-                return (d);
+                return (+d);
             })
             .group(total_of_transactions);
-
-
-        var average_transaction = ndx.groupAll().reduce(
+        
+        
+        
+        var average_of_transactions = ndx.groupAll().reduce(
             function (p, v) {
                 ++p.count;
                 p.total += v.spend;
@@ -92,18 +87,18 @@
             function () {
                 return {count: 0, total: 0, average: 0};
             }
-        );
 
-        dc.numberDisplay("#average-transaction")
+            );
+        dc.numberDisplay("#average-spend")
             .formatNumber(d3.format(".2f"))
             .valueAccessor(function (d) {
                 return (d.average);
             })
-            .group(average_transaction);
+            .group(average_of_transactions);
+        
 
-
-        dc.renderAll();
-    };
+        dc.renderAll();        
+    }
     </script>
 </body>
 </html>

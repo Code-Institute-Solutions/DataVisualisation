@@ -22,11 +22,11 @@
 <body>
     <h1>Data Visualisation</h1>
 
-    <h2>DC Average</h2>
+    <h2>DC Scatter Plot</h2>
 
     <div>
-        <h3>Average Transaction Size By Person</h3>
-        <div id="chart-here"></div>
+        <h3>Average Spend By Person</h3>
+        <div id="bar-chart"></div>
     </div>
 
     <script>
@@ -37,46 +37,50 @@
     function makeGraphs(error, transactionsData) {
         var ndx = crossfilter(transactionsData);
 
-        var parseDate = d3.time.format("%d/%m/%Y").parse;
-        transactionsData.forEach(function(d){
-            d.date = parseDate(d.date);
-        });
-
         var dim = ndx.dimension(dc.pluck('name'));
         var group = dim.group().reduce(
             function (p, v) {
                 p.count++;
                 p.total += v.spend;
+                p.average = p.total / p.count;
                 return p;
             },
             function (p, v) {
                 p.count--;
                 if (p.count == 0) {
                     p.total = 0;
+                    p.average = 0;
                 } else {
                     p.total -= v.spend;
+                    p.average = p.total / p.count;
                 }
                 return p;
             },
             function () {
-                return {count: 0, total: 0};
+                return {count: 0, total: 0, average: 0};
             }
         );
+        
+        var personColors = d3.scale.ordinal()
+                .range(["red", "green", "blue"]);
 
-        var chart = dc.barChart("#chart-here");
+
+        var chart = dc.barChart("#bar-chart");
         chart
             .width(500)
             .height(300)
-            .margins({top: 10, right: 50, bottom: 30, left: 50})
             .dimension(dim)
             .group(group)
             .valueAccessor(function (p) {
-                return p.value.total / p.value.count;
+                return p.value.average;
             })
-            .transitionDuration(500)
             .x(d3.scale.ordinal())
             .xUnits(dc.units.ordinal)
             .elasticY(true)
+            .colorAccessor(function (d) {
+                return d.key;
+            })
+            .colors(personColors)
             .xAxisLabel("Person")
             .yAxis().ticks(4);
 

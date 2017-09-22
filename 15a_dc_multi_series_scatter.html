@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.min.css"/>
+    <style>
+        div {
+            clear: left;
+        }
+    </style>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
+</head>
+<body>
+    
+    <div>
+        <h3>Transactions by Date and Spend</h3>
+        <div id="scatter-plot"></div>
+    </div>
+    
+    <script>
+    queue()
+        .defer(d3.json, "data/transactions.json")
+        .await(makeGraphs);
+    
+    function makeGraphs(error, transactionsData) {
+        
+        var ndx = crossfilter(transactionsData);
+
+        var parseDate = d3.time.format("%d/%m/%Y").parse;
+        transactionsData.forEach(function(d){
+            d.date = parseDate(d.date);
+        });
+        
+        var date_dim = ndx.dimension(dc.pluck('date'));
+        
+        var min_date = date_dim.bottom(1)[0].date;
+        var max_date = date_dim.top(1)[0].date;
+        
+        var spend_dim = ndx.dimension(function (d) {
+            return [d.date, d.spend, d.name];
+        });
+        
+        var tradeColors = d3.scale.ordinal()
+            .domain(["Alice", "Tom", "Bob"])
+            .range(["red", "green", "blue"]);
+
+
+        var spend_group = spend_dim.group();
+        
+        var subChart = function(c) {
+            return dc.scatterPlot(c)
+                        .symbolSize(8)
+                        .highlightedSize(10);
+        };
+
+        
+        var chart = dc.seriesChart("#scatter-plot");
+        chart
+        .width(770)
+        .height(480)
+        .chart(subChart)
+        .x(d3.time.scale().domain([min_date, max_date]))
+        .brushOn(false)
+        .clipPadding(10)
+        .yAxisLabel("Spend")
+        .xAxisLabel("Date")
+        .elasticY(true)
+        .dimension(spend_dim)
+        .group(spend_group)
+        .mouseZoomable(true)
+        .shareTitle(false) // allow default scatter title to work
+        .seriesAccessor(function(d) {return d.key[2];})
+        .keyAccessor(function(d) {return d.key[0];})
+        .valueAccessor(function(d) {return +d.key[1];})
+        .colorAccessor(function (d) {
+            return d.key[2].name;
+        })
+        .colors(tradeColors)
+
+        .legend(dc.legend().x(700).y(50).itemHeight(13).gap(5).horizontal(1).legendWidth(70).itemWidth(70));
+
+        chart.margins().left += 20;
+        chart.margins().bottom += 20;
+        chart.margins().right = 150;
+        dc.renderAll();
+    }
+        
+    </script>
+    
+</body>
+</html>
